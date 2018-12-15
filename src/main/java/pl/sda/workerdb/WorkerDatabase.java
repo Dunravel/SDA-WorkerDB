@@ -3,14 +3,14 @@ package pl.sda.workerdb;
 import java.sql.*;
 import java.util.Map;
 
-public class WorkerDatabase {
+class WorkerDatabase {
     static final private String DB_URL = "jdbc:mysql://localhost/workerdb";
     static final private String USER = "worker";
     static final private String PASS = "workerpass";
     private Connection connection;
     private Statement statement;
 
-    public void connectDatabase() {
+    void connectDatabase() {
         registerMysqlDriver();
         getSqlConnection();
         getSqlStatement();
@@ -44,7 +44,7 @@ public class WorkerDatabase {
 
 
 
-    public void closeConnection(){
+    void closeConnection(){
         if(statement != null){
             try {
                 statement.close();
@@ -62,7 +62,7 @@ public class WorkerDatabase {
     }
 
 
-    public int insertProduct(Product product) {
+    int insertProduct(Product product) {
         int inserted = 0;
         try {
             inserted = statement.executeUpdate("INSERT INTO PRODUCTS VALUES" +
@@ -73,8 +73,8 @@ public class WorkerDatabase {
         return inserted;
     }
 
-    public int deleteProduct(int productId) {
-        int inserted = 0;
+    int deleteProduct(int productId) {
+        int inserted;
         try {
             inserted = statement.executeUpdate("DELETE FROM Products WHERE Product_Id = " + productId);
         } catch (SQLException e) {
@@ -85,8 +85,8 @@ public class WorkerDatabase {
         return inserted;
     }
 
-    public int updateProduct(Product product) {
-        int inserted = 0;
+    int updateProduct(Product product) {
+        int inserted;
         try {
             inserted = statement.executeUpdate("UPDATE Products " +
                     "SET product_id = " + product.getProductId() + "," +
@@ -101,7 +101,7 @@ public class WorkerDatabase {
         return inserted;
     }
 
-    public void syncDatabase(Map productMap, Timestamp currentUpdateDate){
+    void syncDatabase(Map productMap, Timestamp currentUpdateDate){
 
         boolean databaseNotSynced = false;
         String sqlCommand;
