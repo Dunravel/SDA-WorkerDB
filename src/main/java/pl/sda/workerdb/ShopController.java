@@ -70,15 +70,16 @@ public class ShopController implements ShopMVC.Controller {
 
             ResultSet resultSet = null;
             try {
-                resultSet = statement.executeQuery("SELECT product_id,catalog_number, name, description FROM Products;");
+                resultSet = statement.executeQuery("SELECT product_id,catalog_number, name, description, updatedate FROM Products;");
 
                 while(resultSet.next()){
                     int productId = resultSet.getInt("product_id");
                     String catalogNumber = resultSet.getString("catalog_number");
                     String name = resultSet.getString("name");
                     String desc = resultSet.getString("description");
+                    Timestamp updateDate = resultSet.getTimestamp("updatedate");
 
-                    productMap.put(productId,new Product(productId,catalogNumber,name,desc));
+                    productMap.put(productId,new Product(productId,catalogNumber,name,desc, updateDate));
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
