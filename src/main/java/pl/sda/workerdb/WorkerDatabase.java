@@ -65,9 +65,20 @@ class WorkerDatabase {
     int insertProduct(Product product) {
         int inserted = 0;
         try {
+            connection.setAutoCommit(false);
             inserted = statement.executeUpdate("INSERT INTO PRODUCTS VALUES" +
                     "("+product.getProductId() + ",'"+product.getCatalogNumber() + "','"+product.getName()+"','"+product.getDescription()+"', '" + product.getUpdatedate() + "');");
+            connection.commit();
+            connection.setAutoCommit(true);
         } catch (SQLException e) {
+            try {
+                if(!connection.getAutoCommit()) {
+                    connection.rollback();
+                    connection.setAutoCommit(true);
+                }
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         }
         return inserted;
@@ -76,8 +87,19 @@ class WorkerDatabase {
     int deleteProduct(int productId) {
         int inserted;
         try {
+            connection.setAutoCommit(false);
             inserted = statement.executeUpdate("DELETE FROM Products WHERE Product_Id = " + productId);
+            connection.commit();
+            connection.setAutoCommit(true);
         } catch (SQLException e) {
+            try {
+                if(!connection.getAutoCommit()) {
+                    connection.setAutoCommit(true);
+                }
+                connection.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
             inserted = -99;
         }
@@ -88,14 +110,24 @@ class WorkerDatabase {
     int updateProduct(Product product) {
         int inserted;
         try {
+            connection.setAutoCommit(false);
             inserted = statement.executeUpdate("UPDATE Products " +
                     "SET product_id = " + product.getProductId() + "," +
                     "catalog_number = '" + product.getCatalogNumber() + "'," +
                     "name = '"+product.getName()+"'," +
                     "description = '"+product.getDescription()+"'," +
                     "updatedate = '" + product.getUpdatedate() + "';");
+            connection.commit();
+            connection.setAutoCommit(true);
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+                connection.setAutoCommit(false);
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+
             inserted = -99;
         }
         return inserted;
