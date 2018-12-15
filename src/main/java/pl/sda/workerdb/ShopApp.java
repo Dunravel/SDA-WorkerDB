@@ -43,7 +43,7 @@ public class ShopApp implements ShopMVC.View {
                     break;
                 }
                 case 2:{
-                    Product product = prepareProduct();
+                    Product product = prepareProductAdd();
                     if(product != null) {
                         shopController.addProduct(product);
                     }
@@ -57,7 +57,7 @@ public class ShopApp implements ShopMVC.View {
                     break;
                 }
                 case 4: {
-                    Product product = prepareProduct();
+                    Product product = prepareProductUpdate();
                     if(product != null){
                         shopController.updateProduct(product);
                     }
@@ -81,7 +81,7 @@ public class ShopApp implements ShopMVC.View {
         return productId;
     }
 
-    private Product prepareProduct() {
+    private Product prepareProductAdd(){
         System.out.println("Adding new product.\n Enter required data: ");
         Scanner in = new Scanner(System.in);
         System.out.println("Product ID: ");
@@ -94,6 +94,29 @@ public class ShopApp implements ShopMVC.View {
             System.out.println("Product ID already exist. Cannot add another product with the same ID \n");
             return null;
         }
+        return prepareProduct(productId);
+    }
+
+    private Product prepareProductUpdate(){
+        System.out.println("Updating product.\n Enter required data: ");
+        Scanner in = new Scanner(System.in);
+        System.out.println("Product ID: ");
+        int productId = in.nextInt();
+        if(in.hasNextLine()){
+            in.nextLine();
+        }
+
+        if(!shopController.productExists(productId)){
+            System.out.println("Product ID does not exist. \n");
+            return null;
+        }
+        return prepareProduct(productId);
+    }
+
+
+    private Product prepareProduct(int productId) {
+
+        Scanner in = new Scanner(System.in);
         System.out.println("Product name:");
         String name = in.nextLine();
 
@@ -122,7 +145,7 @@ public class ShopApp implements ShopMVC.View {
     public void displayProduct(Product product) {
         System.out.println("ID: " + product.getProductId()
                 + " Name: " + product.getName()
-                + " Calatog: " + product.getCatalogNumber()
+                + " Catalog: " + product.getCatalogNumber()
                 + " Description: " + product.getDescription());
         System.out.println();
     }

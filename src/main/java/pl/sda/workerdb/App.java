@@ -5,10 +5,10 @@ import java.util.Properties;
 
 public class App
 {
-    static final private String DB_URL = "jdbc:mysql://localhost/workerdb";
+   /* static final private String DB_URL = "jdbc:mysql://localhost/workerdb";
     static final private String USER = "worker";
     static final private String PASS = "workerpass";
-
+*/
     public static void main( String[] args )
     {
         ShopApp shopApp = new ShopApp();
@@ -16,7 +16,7 @@ public class App
 
 
     }
-
+/*
     private static void prevoiousMain() {
         // register mysql driver
         registerMysqlDriver();
@@ -62,10 +62,10 @@ public class App
         try {
             return DriverManager.getConnection(DB_URL,USER,PASS);
 
-             /*Properties properties = new Properties();
-        properties.setProperty()
-        Connection connection = DriverManager.getConnection(DB_URL,properties);
-        */
+             //Properties properties = new Properties();
+       // properties.setProperty()
+        //Connection connection = DriverManager.getConnection(DB_URL,properties);
+        //
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -120,4 +120,5 @@ public class App
         }
 
     }
+    */
 }

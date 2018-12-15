@@ -12,6 +12,7 @@ public class ShopController implements ShopMVC.Controller {
     private Connection connection;
     Map<Integer,Product> productMap = new HashMap<>();
     private Statement statement;
+    private Timestamp updateDate;
 
     public ShopController(ShopMVC.View view){
         this.view = view;
@@ -21,6 +22,7 @@ public class ShopController implements ShopMVC.Controller {
 
     @Override
     public void getAllProducts() {
+        syncDatabase();
         if(productMap.size() == 0){
             view.noProductsAvailable();
         } else {
@@ -30,12 +32,18 @@ public class ShopController implements ShopMVC.Controller {
 
     @Override
     public void getProduct(int productId) {
-        Product product = productMap.get(productId);
-        view.displayProduct(product);
+        syncDatabase();
+        if(productMap.containsKey(productId)) {
+            Product product = productMap.get(productId);
+            view.displayProduct(product);
+        } else {
+            view.displayProductIdNotExists();
+        }
     }
 
     @Override
     public boolean productExists(int productId) {
+        syncDatabase();
         if(productMap.containsKey(productId)){
             return true;
         } else {
@@ -109,11 +117,6 @@ public class ShopController implements ShopMVC.Controller {
         try {
             return DriverManager.getConnection(DB_URL,USER,PASS);
 
-             /*Properties properties = new Properties();
-        properties.setProperty()
-        Connection connection = DriverManager.getConnection(DB_URL,properties);
-        */
-
         } catch (SQLException e) {
             view.noConnection();
             e.printStackTrace();
@@ -133,7 +136,7 @@ public class ShopController implements ShopMVC.Controller {
             ResultSet resultSet = null;
             try {
                 resultSet = statement.executeQuery("SELECT product_id,catalog_number, name, description, updatedate FROM Products;");
-
+                updateDate = new Timestamp(System.currentTimeMillis());
                 while(resultSet.next()){
                     int productId = resultSet.getInt("product_id");
                     String catalogNumber = resultSet.getString("catalog_number");
@@ -143,6 +146,7 @@ public class ShopController implements ShopMVC.Controller {
 
                     productMap.put(productId,new Product(productId,catalogNumber,name,desc, updateDate));
                 }
+
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
@@ -158,6 +162,44 @@ public class ShopController implements ShopMVC.Controller {
         }
         catch (SQLException e){
             e.printStackTrace();
+        }
+    }
+
+    public void syncDatabase(){
+
+        boolean databaseNotSynced = false;
+        try {
+            databaseNotSynced = statement.execute("SELECT product_id FROM Products WHERE updatedate > '" + updateDate + "';");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if(databaseNotSynced){
+            ResultSet resultSet = null;
+            try {
+                resultSet = statement.executeQuery("SELECT product_id,catalog_number, name, description, updatedate FROM Products WHERE updatedate > '" + updateDate + "';");
+                updateDate = new Timestamp(System.currentTimeMillis());
+
+                while(resultSet.next()){
+                    int productId = resultSet.getInt("product_id");
+                    String catalogNumber = resultSet.getString("catalog_number");
+                    String name = resultSet.getString("name");
+                    String desc = resultSet.getString("description");
+                    Timestamp updateDate = resultSet.getTimestamp("updatedate");
+
+                    productMap.put(productId,new Product(productId,catalogNumber,name,desc, updateDate));
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                if(resultSet != null){
+                    try {
+                        resultSet.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
