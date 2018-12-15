@@ -42,7 +42,7 @@ public class App
             // closing connection
             if(statement != null){
                 try {
-                    statement.close();
+                    statement.exit();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -50,7 +50,7 @@ public class App
             if(connection != null) {
                 try {
 
-                    connection.close();
+                    connection.exit();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -102,7 +102,7 @@ public class App
         } finally {
             if(resultSet != null){
                 try {
-                    resultSet.close();
+                    resultSet.exit();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }

@@ -26,7 +26,7 @@ public class ShopApp implements ShopMVC.View {
             int selection = in.nextInt();
 
             if(selection == 0){
-                shopController.close();
+                shopController.exit();
                 break;
             }
 

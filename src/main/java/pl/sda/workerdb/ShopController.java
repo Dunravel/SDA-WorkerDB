@@ -9,15 +9,15 @@ public class ShopController implements ShopMVC.Controller {
     static final private String USER = "worker";
     static final private String PASS = "workerpass";
     private ShopMVC.View view;
-    private Connection connection;
+    private WorkerDatabase workerDb;
     Map<Integer,Product> productMap = new HashMap<>();
-    private Statement statement;
-    private Timestamp updateDate;
+    private Timestamp updateDate = null;
 
     public ShopController(ShopMVC.View view){
         this.view = view;
-        connectDatabase();
-        initProducts();
+        workerDb = new WorkerDatabase();
+        workerDb.connectDatabase();
+        //connectDatabase();
     }
 
     @Override
@@ -28,6 +28,12 @@ public class ShopController implements ShopMVC.Controller {
         } else {
             view.displayProducts(productMap);
         }
+    }
+
+    private void syncDatabase() {
+        Timestamp currentTimestamp = updateDate;
+       workerDb.syncDatabase(productMap,currentTimestamp);
+       updateDate = new Timestamp(System.currentTimeMillis());
     }
 
     @Override
@@ -53,17 +59,12 @@ public class ShopController implements ShopMVC.Controller {
 
     @Override
     public void addProduct(Product product) {
-        int inserted = 0;
-        try {
-            inserted = statement.executeUpdate("INSERT INTO PRODUCTS VALUES" +
-                    "("+product.getProductId() + ",'"+product.getCatalogNumber() + "','"+product.getName()+"','"+product.getDescription()+"', '" + product.getUpdatedate() + "');");
-            productMap.put(product.getProductId(),product);
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+        int inserted = workerDb.insertProduct(product);
+        if(inserted > 0) {
+            productMap.put(product.getProductId(), product);
+            view.displayProductAdded();
         }
-
-        view.displayProductAdded();
-
     }
 
     @Override
@@ -73,150 +74,23 @@ public class ShopController implements ShopMVC.Controller {
             return;
         }
 
-        try {
-            int inserted = statement.executeUpdate("DELETE FROM Products WHERE Product_Id = " + productId);
-            productMap.remove(productId);
-            view.displayProductDeleted(productId);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        workerDb.deleteProduct(productId);
+        productMap.remove(productId);
+        view.displayProductDeleted(productId);
+
     }
 
     @Override
     public void updateProduct(Product product) {
-        int inserted = 0;
-        try {
-            inserted = statement.executeUpdate("UPDATE Products " +
-                    "SET product_id = " + product.getProductId() + "," +
-                    "catalog_number = '" + product.getCatalogNumber() + "'," +
-                    "name = '"+product.getName()+"'," +
-                    "description = '"+product.getDescription()+"'," +
-                    "updatedate = '" + product.getUpdatedate() + "';");
-            productMap.put(product.getProductId(),product);
-            view.diplayProductUpdated();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+       workerDb.updateProduct(product);
+       productMap.put(product.getProductId(),product);
+       view.diplayProductUpdated();
     }
 
-    private void connectDatabase() {
-        registerMysqlDriver();
-        connection = getSqlConnection();
-    }
 
-    private void registerMysqlDriver(){
-        try {
-            Driver driver = new com.mysql.jdbc.Driver();
-            DriverManager.registerDriver(driver);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
-    private Connection getSqlConnection(){
-        try {
-            return DriverManager.getConnection(DB_URL,USER,PASS);
 
-        } catch (SQLException e) {
-            view.noConnection();
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void initProducts() {
-        try{
-            statement = connection.createStatement();
-            boolean productsExist = statement.execute("SELECT product_id FROM Products;");
-            if(!productsExist){
-                view.noProductsAvailable();
-                return;
-            }
-
-            ResultSet resultSet = null;
-            try {
-                resultSet = statement.executeQuery("SELECT product_id,catalog_number, name, description, updatedate FROM Products;");
-                updateDate = new Timestamp(System.currentTimeMillis());
-                while(resultSet.next()){
-                    int productId = resultSet.getInt("product_id");
-                    String catalogNumber = resultSet.getString("catalog_number");
-                    String name = resultSet.getString("name");
-                    String desc = resultSet.getString("description");
-                    Timestamp updateDate = resultSet.getTimestamp("updatedate");
-
-                    productMap.put(productId,new Product(productId,catalogNumber,name,desc, updateDate));
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                if(resultSet != null){
-                    try {
-                        resultSet.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-        }
-        catch (SQLException e){
-            e.printStackTrace();
-        }
-    }
-
-    public void syncDatabase(){
-
-        boolean databaseNotSynced = false;
-        try {
-            databaseNotSynced = statement.execute("SELECT product_id FROM Products WHERE updatedate > '" + updateDate + "';");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        if(databaseNotSynced){
-            ResultSet resultSet = null;
-            try {
-                resultSet = statement.executeQuery("SELECT product_id,catalog_number, name, description, updatedate FROM Products WHERE updatedate > '" + updateDate + "';");
-                updateDate = new Timestamp(System.currentTimeMillis());
-
-                while(resultSet.next()){
-                    int productId = resultSet.getInt("product_id");
-                    String catalogNumber = resultSet.getString("catalog_number");
-                    String name = resultSet.getString("name");
-                    String desc = resultSet.getString("description");
-                    Timestamp updateDate = resultSet.getTimestamp("updatedate");
-
-                    productMap.put(productId,new Product(productId,catalogNumber,name,desc, updateDate));
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                if(resultSet != null){
-                    try {
-                        resultSet.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
-    public void close(){
-        if(statement != null){
-            try {
-                statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        if(connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+    public void exit(){
+        workerDb.closeConnection();
     }
 }
