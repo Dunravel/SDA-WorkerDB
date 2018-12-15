@@ -18,7 +18,7 @@ public class ShopApp implements ShopMVC.View {
             System.out.println("1. Display product");
             System.out.println("2. Add new product");
             System.out.println("3. Delete product");
-            System.out.println("4. ");
+            System.out.println("4. Update product");
             System.out.println("5. List all products");
             System.out.println("0. Exit");
 
@@ -58,7 +58,9 @@ public class ShopApp implements ShopMVC.View {
                 }
                 case 4: {
                     Product product = prepareProduct();
-
+                    if(product != null){
+                        shopController.updateProduct(product);
+                    }
                 }
 
             }
@@ -144,11 +146,16 @@ public class ShopApp implements ShopMVC.View {
 
     @Override
     public void displayProductIdNotExists() {
-        System.out.println("Product ID does not exist.");
+        System.out.println("Product ID does not exist. \n");
     }
 
     @Override
     public void displayProductDeleted(int productId) {
         System.out.println("Product: " + productId + " has been deleted. \n");
+    }
+
+    @Override
+    public void diplayProductUpdated() {
+        System.out.println("Product has been updated. \n");
     }
 }

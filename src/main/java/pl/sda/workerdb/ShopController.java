@@ -67,11 +67,28 @@ public class ShopController implements ShopMVC.Controller {
 
         try {
             int inserted = statement.executeUpdate("DELETE FROM Products WHERE Product_Id = " + productId);
+            productMap.remove(productId);
             view.displayProductDeleted(productId);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
 
+    @Override
+    public void updateProduct(Product product) {
+        int inserted = 0;
+        try {
+            inserted = statement.executeUpdate("UPDATE Products " +
+                    "SET product_id = " + product.getProductId() + "," +
+                    "catalog_number = '" + product.getCatalogNumber() + "'," +
+                    "name = '"+product.getName()+"'," +
+                    "description = '"+product.getDescription()+"'," +
+                    "updatedate = '" + product.getUpdatedate() + "';");
+            productMap.put(product.getProductId(),product);
+            view.diplayProductUpdated();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void connectDatabase() {
