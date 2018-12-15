@@ -38,9 +38,10 @@ public class ShopController implements ShopMVC.Controller {
 
     @Override
     public void getProduct(int productId) {
-        syncDatabase();
-        if(productMap.containsKey(productId)) {
-            Product product = productMap.get(productId);
+        Product product = workerDb.getProduct(productId);
+
+        if(product != null) {
+            productMap.put(product.getProductId(),product);
             view.displayProduct(product);
         } else {
             view.displayProductIdNotExists();

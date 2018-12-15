@@ -122,8 +122,11 @@ class WorkerDatabase {
         } catch (SQLException e) {
             e.printStackTrace();
             try {
+                if(!connection.getAutoCommit()){
+                    connection.setAutoCommit(false);
+                }
                 connection.rollback();
-                connection.setAutoCommit(false);
+
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
@@ -176,5 +179,28 @@ class WorkerDatabase {
                 }
             }
         }
+    }
+
+    public Product getProduct(int productId) {
+        String sqlCommand = "SELECT product_id,catalog_number, name, description, updatedate FROM Products WHERE product_id = " + productId;
+
+        ResultSet resultSet = null;
+        try{
+            resultSet = statement.executeQuery(sqlCommand);
+
+
+            while(resultSet.next()){
+                String catalogNumber = resultSet.getString("catalog_number");
+                String name = resultSet.getString("name");
+                String desc = resultSet.getString("description");
+                Timestamp updateDate = resultSet.getTimestamp("updatedate");
+
+                return new Product(productId,catalogNumber,name,desc, updateDate);
+            }
+
+        } catch (SQLException e) {
+        e.printStackTrace();
+        }
+        return null;
     }
 }
