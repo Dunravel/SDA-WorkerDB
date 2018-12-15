@@ -10,6 +10,8 @@ public interface ShopMVC {
         void noProductsAvailable();
 
         void displayProducts(Map<Integer, Product> productMap);
+
+        void noConnection();
     }
 
     interface Controller{

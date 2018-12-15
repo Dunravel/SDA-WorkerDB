@@ -52,6 +52,7 @@ public class ShopController implements ShopMVC.Controller {
         */
 
         } catch (SQLException e) {
+            view.noConnection();
             e.printStackTrace();
         }
         return null;

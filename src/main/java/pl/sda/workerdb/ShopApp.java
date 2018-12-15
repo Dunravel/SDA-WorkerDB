@@ -36,6 +36,12 @@ public class ShopApp implements ShopMVC.View {
     }
 
     @Override
+    public void noConnection() {
+        System.out.println("Unable to connect to database - exiting.");
+        System.exit(-1);
+    }
+
+    @Override
     public void noProductsAvailable() {
         System.out.println("There are no products");
     }
