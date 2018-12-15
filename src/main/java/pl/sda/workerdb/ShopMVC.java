@@ -14,6 +14,8 @@ public interface ShopMVC {
         void noConnection();
 
         void displayProduct(Product product);
+
+        void displayProductAdded();
     }
 
     interface Controller{
@@ -21,5 +23,9 @@ public interface ShopMVC {
         void getAllProducts();
 
         void getProduct(int productId);
+
+        boolean productExists(int productId);
+
+        void addProduct(Product product);
     }
 }

@@ -2,6 +2,7 @@ package pl.sda.workerdb;
 
 import com.sun.corba.se.impl.io.TypeMismatchException;
 
+import java.sql.Timestamp;
 import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
@@ -17,7 +18,9 @@ public class ShopApp implements ShopMVC.View {
             System.out.println("Select operation: ");
             System.out.println("1. Display product");
             System.out.println("2. Add new product");
-            System.out.println("6. List all products");
+            System.out.println("3. ");
+            System.out.println("4. ");
+            System.out.println("5. List all products");
             System.out.println("0. Exit");
 
             Scanner in = new Scanner(System.in);
@@ -29,7 +32,7 @@ public class ShopApp implements ShopMVC.View {
             }
 
             switch (selection){
-                case 6:
+                case 5:
                     shopController.getAllProducts();
                     break;
                 case 1:
@@ -44,10 +47,39 @@ public class ShopApp implements ShopMVC.View {
                     shopController.getProduct(productId);
                     break;
                 case 2:
-                   // shopController.addProduct();
+                    Product product = prepareProduct();
+                    if(product != null) {
+                        shopController.addProduct(product);
+                    }
                     break;
             }
         }
+    }
+
+    private Product prepareProduct() {
+        System.out.println("Adding new product.\n Enter required data: ");
+        Scanner in = new Scanner(System.in);
+        System.out.println("Product ID: ");
+        int productId = in.nextInt();
+        if(in.hasNextLine()){
+            in.nextLine();
+        }
+
+        if(shopController.productExists(productId)){
+            System.out.println("Product ID already exist. Cannot add another product with the same ID \n");
+            return null;
+        }
+        System.out.println("Product name:");
+        String name = in.nextLine();
+
+        System.out.println("Catalog number:");
+        String catalogNumber = in.nextLine();
+
+        System.out.println("Description:");
+        String description = in.nextLine();
+
+        Product product = new Product(productId,catalogNumber,name,description,new Timestamp(System.currentTimeMillis()));
+        return product;
     }
 
     @Override
@@ -80,5 +112,10 @@ public class ShopApp implements ShopMVC.View {
                     + " Description: " + product.getDescription());
         }
         System.out.println();
+    }
+
+    @Override
+    public void displayProductAdded() {
+        System.out.println("Product has been added. \n");
     }
 }

@@ -11,7 +11,7 @@ public class ShopController implements ShopMVC.Controller {
     private ShopMVC.View view;
     private Connection connection;
     Map<Integer,Product> productMap = new HashMap<>();
-    //private Statement statement;
+    private Statement statement;
 
     public ShopController(ShopMVC.View view){
         this.view = view;
@@ -32,6 +32,30 @@ public class ShopController implements ShopMVC.Controller {
     public void getProduct(int productId) {
         Product product = productMap.get(productId);
         view.displayProduct(product);
+    }
+
+    @Override
+    public boolean productExists(int productId) {
+        if(productMap.containsKey(productId)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void addProduct(Product product) {
+        int inserted = 0;
+        try {
+            inserted = statement.executeUpdate("INSERT INTO PRODUCTS VALUES" +
+                    "("+product.getProductId() + ",'"+product.getCatalogNumber() + "','"+product.getName()+"','"+product.getDescription()+"', '" + product.getUpdatedate() + "');");
+            productMap.put(product.getProductId(),product);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        view.displayProductAdded();
+
     }
 
     private void connectDatabase() {
@@ -65,7 +89,6 @@ public class ShopController implements ShopMVC.Controller {
     }
 
     public void initProducts() {
-        Statement statement = null;
         try{
             statement = connection.createStatement();
             boolean productsExist = statement.execute("SELECT product_id FROM Products;");
@@ -102,20 +125,17 @@ public class ShopController implements ShopMVC.Controller {
         }
         catch (SQLException e){
             e.printStackTrace();
-        }finally {
-            if(statement != null){
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
-
-
     }
 
     public void close(){
+        if(statement != null){
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         if(connection != null) {
             try {
                 connection.close();
