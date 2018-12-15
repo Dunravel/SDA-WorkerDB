@@ -1,6 +1,5 @@
 package pl.sda.workerdb;
 
-import com.sun.corba.se.impl.io.TypeMismatchException;
 
 import java.sql.Timestamp;
 import java.util.InputMismatchException;
@@ -18,7 +17,7 @@ public class ShopApp implements ShopMVC.View {
             System.out.println("Select operation: ");
             System.out.println("1. Display product");
             System.out.println("2. Add new product");
-            System.out.println("3. ");
+            System.out.println("3. Delete product");
             System.out.println("4. ");
             System.out.println("5. List all products");
             System.out.println("0. Exit");
@@ -32,28 +31,52 @@ public class ShopApp implements ShopMVC.View {
             }
 
             switch (selection){
-                case 5:
+                case 5: {
                     shopController.getAllProducts();
                     break;
-                case 1:
-                    System.out.println("Enter product id: ");
-                    int productId = 0;
-                    try{
-                        productId = in.nextInt();
-                    }catch(InputMismatchException e){
-                        System.out.println("Incorrect entry \n");
-                        break;
+                }
+                case 1: {
+                    int productId = entryProductId();
+                    if (productId > 0) {
+                        shopController.getProduct(productId);
                     }
-                    shopController.getProduct(productId);
                     break;
-                case 2:
+                }
+                case 2:{
                     Product product = prepareProduct();
                     if(product != null) {
                         shopController.addProduct(product);
                     }
                     break;
+                }
+                case 3: {
+                    int productId = entryProductId();
+                    if (productId > 0) {
+                        shopController.deleteProduct(productId);
+                    }
+                    break;
+                }
+                case 4: {
+                    Product product = prepareProduct();
+
+                }
+
             }
         }
+    }
+
+    private int entryProductId(){
+        Scanner in = new Scanner(System.in);
+        System.out.println("Enter product id: ");
+        int productId = 0;
+        try{
+            productId = in.nextInt();
+        }catch(InputMismatchException e){
+            System.out.println("Incorrect entry \n");
+            return -99;
+
+        }
+        return productId;
     }
 
     private Product prepareProduct() {
@@ -108,7 +131,7 @@ public class ShopApp implements ShopMVC.View {
             Product product = entry.getValue();
             System.out.println("ID: " + entry.getKey()
                     + " Name: " + product.getName()
-                    + " Calatog: " + product.getCatalogNumber()
+                    + " Catalog: " + product.getCatalogNumber()
                     + " Description: " + product.getDescription());
         }
         System.out.println();
@@ -117,5 +140,15 @@ public class ShopApp implements ShopMVC.View {
     @Override
     public void displayProductAdded() {
         System.out.println("Product has been added. \n");
+    }
+
+    @Override
+    public void displayProductIdNotExists() {
+        System.out.println("Product ID does not exist.");
+    }
+
+    @Override
+    public void displayProductDeleted(int productId) {
+        System.out.println("Product: " + productId + " has been deleted. \n");
     }
 }

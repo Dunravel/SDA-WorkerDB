@@ -58,6 +58,22 @@ public class ShopController implements ShopMVC.Controller {
 
     }
 
+    @Override
+    public void deleteProduct(int productId) {
+        if(!productMap.containsKey(productId)){
+            view.displayProductIdNotExists();
+            return;
+        }
+
+        try {
+            int inserted = statement.executeUpdate("DELETE FROM Products WHERE Product_Id = " + productId);
+            view.displayProductDeleted(productId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void connectDatabase() {
         registerMysqlDriver();
         connection = getSqlConnection();

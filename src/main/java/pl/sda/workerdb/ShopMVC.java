@@ -16,6 +16,10 @@ public interface ShopMVC {
         void displayProduct(Product product);
 
         void displayProductAdded();
+
+        void displayProductIdNotExists();
+
+        void displayProductDeleted(int productId);
     }
 
     interface Controller{
@@ -27,5 +31,7 @@ public interface ShopMVC {
         boolean productExists(int productId);
 
         void addProduct(Product product);
+
+        void deleteProduct(int productId);
     }
 }
