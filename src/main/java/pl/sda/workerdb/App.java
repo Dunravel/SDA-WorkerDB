@@ -1,7 +1,5 @@
 package pl.sda.workerdb;
 
-import java.sql.*;
-import java.util.Properties;
 
 public class App
 {
