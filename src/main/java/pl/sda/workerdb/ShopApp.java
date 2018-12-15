@@ -1,5 +1,8 @@
 package pl.sda.workerdb;
 
+import com.sun.corba.se.impl.io.TypeMismatchException;
+
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -12,8 +15,9 @@ public class ShopApp implements ShopMVC.View {
         System.out.println("Welcome to our shop! \n");
         while(true) {
             System.out.println("Select operation: ");
-            System.out.println("1. List all products");
+            System.out.println("1. Display product");
             System.out.println("2. Add new product");
+            System.out.println("6. List all products");
             System.out.println("0. Exit");
 
             Scanner in = new Scanner(System.in);
@@ -25,8 +29,19 @@ public class ShopApp implements ShopMVC.View {
             }
 
             switch (selection){
+                case 6:
+                    shopController.getAllProducts();
+                    break;
                 case 1:
-                    shopController.listProducts();
+                    System.out.println("Enter product id: ");
+                    int productId = 0;
+                    try{
+                        productId = in.nextInt();
+                    }catch(InputMismatchException e){
+                        System.out.println("Incorrect entry \n");
+                        break;
+                    }
+                    shopController.getProduct(productId);
                     break;
                 case 2:
                    // shopController.addProduct();
@@ -44,6 +59,15 @@ public class ShopApp implements ShopMVC.View {
     @Override
     public void noProductsAvailable() {
         System.out.println("There are no products");
+    }
+
+    @Override
+    public void displayProduct(Product product) {
+        System.out.println("ID: " + product.getProductId()
+                + " Name: " + product.getName()
+                + " Calatog: " + product.getCatalogNumber()
+                + " Description: " + product.getDescription());
+        System.out.println();
     }
 
     @Override

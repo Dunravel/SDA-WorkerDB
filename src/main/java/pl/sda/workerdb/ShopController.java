@@ -20,12 +20,18 @@ public class ShopController implements ShopMVC.Controller {
     }
 
     @Override
-    public void listProducts() {
+    public void getAllProducts() {
         if(productMap.size() == 0){
             view.noProductsAvailable();
         } else {
             view.displayProducts(productMap);
         }
+    }
+
+    @Override
+    public void getProduct(int productId) {
+        Product product = productMap.get(productId);
+        view.displayProduct(product);
     }
 
     private void connectDatabase() {
